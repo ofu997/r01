@@ -23,28 +23,44 @@ const list = [
 
 class App extends Component {
   render() {
-    const helloWorld = 'Welcome to the Road to learn React';
+    const helloWorld = 'Welcome to my React site';
     return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>{helloWorld}</p>
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-        {list.map(function(item) {
-        return <div>{item.title}</div>;
-        })}
-      </header>
-    </div>
+      // <div className="App">
+      //   <header className="App-header">
+      //     <img src={logo} className="App-logo" alt="logo" />
+      //     <p>{helloWorld}</p>
+      //     <p>
+      //       Edit <code>src/App.js</code> and save to reload.
+      //     </p>
+      //     <a
+      //       className="App-link"
+      //       href="https://reactjs.org"
+      //       target="_blank"
+      //       rel="noopener noreferrer"
+      //     >
+      //       Learn React
+      //     </a>
+      //     {list.map(function(item) {
+      //       return <div>{item.title}</div>;
+      //     })}
+      //   </header>
+      // </div>
+
+      <div className="App">
+      {list.map(function(item) {
+      return (
+        <div>
+        <span>
+        <a href={item.url}>{item.title}</a>
+        </span>
+        <span>{item.author}&nbsp;</span>
+        <span>comments: {item.num_comments}&nbsp;</span>
+        
+        <span>points: {item.points}</span>
+        </div>
+      );
+      })}
+      </div>
     );
   }
 }
