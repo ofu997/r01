@@ -21,9 +21,18 @@ const list = [
   },
 ];
 
+const helloWorld = 'Welcome to my React site';
+
 class App extends Component {
+
+  constructor(props){
+    super(props);
+    this.state = {
+      list: list,
+    };
+  }
+
   render() {
-    const helloWorld = 'Welcome to my React site';
     return (
       <div className="App">
         <header className="App-header">
@@ -41,24 +50,22 @@ class App extends Component {
           </a>
         </header>
         <div style={{padding : "100px 0px"}}>
-          {list.map(function(item) {
-            return (
-              <div key = { item.objectID } >
-                <span>
-                  <a href={item.url}>{item.title}</a>
-                </span>
-                <span>
-                  {item.author}&nbsp;
-                </span>
-                <span>
-                  comments: {item.num_comments}&nbsp;
-                </span>
-                <span>
-                  points: {item.points}
-                </span>
-              </div>
-            );
-          })}
+          {this.state.list.map(item => 
+            <div key = { item.objectID } >
+              <span>
+                <a href={item.url}>{item.title}</a>
+              </span>
+              <span>
+                {item.author}&nbsp;
+              </span>
+              <span>
+                comments: {item.num_comments}&nbsp;
+              </span>
+              <span>
+                points: {item.points}
+              </span>
+            </div>
+          )}
         </div>
 
       </div>
