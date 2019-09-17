@@ -27,9 +27,28 @@ class App extends Component {
 
   constructor(props){
     super(props);
+
     this.state = {
-      list: list,
+      list,
     };
+    // bind a class method to constructor
+    this.onDismiss = this.onDismiss.bind(this);
+    this.onSearchChange = this.onSearchChange.bind(this);
+  }
+
+  // arrow function would auto bind the function
+  onDismiss(id) {
+    // function isNotId(item) {
+    //   return item.objectID !== id;
+    // }
+    // const isNotId = item => item.objectID !== id;
+
+    const updatedList = this.state.list.filter(item => item.objectID !== id);
+    this.setState({ list: updatedList });
+  }
+
+  onSearchChange() {
+
   }
 
   render() {
@@ -50,6 +69,12 @@ class App extends Component {
           </a>
         </header>
         <div style={{padding : "100px 0px"}}>
+          <form>
+            <input 
+              type="text" 
+              onchange = {this.onSearchChange}
+            />
+          </form>
           {this.state.list.map(item => 
             <div key = { item.objectID } >
               <span>
@@ -63,6 +88,14 @@ class App extends Component {
               </span>
               <span>
                 points: {item.points}
+              </span>
+              <span>
+                <button
+                onClick={() => this.onDismiss(item.objectID)}
+                type="button"
+                >
+                Dismiss
+                </button>
               </span>
             </div>
           )}
