@@ -22,13 +22,7 @@ const list = [
   },
 ];
 
-const helloWorld = 'Welcome to my React site';
 
-// function isSearched(searchTerm) {
-//   return function (item) {
-//     return item.title.toLowerCase().includes(searchTerm.toLowerCase());
-//   }
-// }
 
 const isSearched = searchTerm => item =>
   item.title.toLowerCase().includes(searchTerm.toLowerCase());
@@ -47,11 +41,6 @@ class App extends Component {
 
   // arrow function would auto bind the function
   onDismiss(id) {
-    // function updatedList(item) {
-    //   return item.objectID !== id;
-    // }
-    // const updatedList = item => item.objectID !== id;
-
     const updatedList = this.state.list.filter(item => item.objectID !== id);
     this.setState({ list: updatedList });
   }
@@ -61,7 +50,10 @@ class App extends Component {
   }
 
   render() {
-    const { searchTerm, list } = this.state;
+    // same as:
+    // var searchTerm = this.state.searchTerm; 
+    // var list = this.state.list;
+  const { searchTerm, list } = this.state;
     return (
       <div className="App">
         <Search 
