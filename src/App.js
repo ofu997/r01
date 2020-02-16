@@ -22,11 +22,10 @@ const list = [
   },
 ];
 
-
-
 const isSearched = searchTerm => item =>
   item.title.toLowerCase().includes(searchTerm.toLowerCase());
 
+// uses local state so is an ES6 class component. The rest are Functional Stateless Components
 class App extends Component {
   constructor(props){
     super(props);
@@ -72,22 +71,66 @@ class App extends Component {
   }
 }
 
-// example of composable component
-class Search extends Component {
-  render() {
-    const { value, onChange, children } = this.props;
-    return (
-      <form>
-        { children } 
-        <input   
-          type = "text"
-          value = { value }
-          onChange = { onChange }
-        />
-      </form>
-    )
-  }
-}
+// Example of composable component
+// class Search extends Component {
+//   render() {
+//     // children is the word "Search" between opening and closing tags
+//     const { value, onChange, children } = this.props;
+//     return (
+//       <form>
+//         { children } 
+//         <input   
+//           type = "text"
+//           value = { value }
+//           onChange = { onChange }
+//         />
+//       </form>
+//     )
+//   }
+// }
+
+//  Functional Stateless Component. Stage 1
+// function Search(props) {
+//   const { value, onChange, children } = props;
+//   return (
+//     <form>
+//       {children} 
+//       <input
+//         type="text"
+//         value={value}
+//         onChange={onChange}
+//       />
+//     </form>
+//   )
+// }
+
+//  Stage 2
+// function Search( { value, onChange, children } ) {
+//   return (
+//     <form>
+//       {children} 
+//       <input
+//         type="text"
+//         value={value}
+//         onChange={onChange}
+//       />
+//     </form>
+//   )
+// }
+
+// Stage 3
+const Search = ( { value, onChange, children } ) =>
+  <form>
+    {children} 
+    <input
+      type="text"
+      value={value}
+      onChange={onChange}
+    />
+  </form>
+  
+  
+
 
 class Table extends Component {
   render() {
