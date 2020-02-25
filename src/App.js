@@ -43,8 +43,14 @@ class App extends Component {
   
   // arrow function would auto bind the function
   onDismiss(id) {
-    const updatedList = this.state.list.filter(item => item.objectID !== id);
-    this.setState({ list: updatedList });
+    const isNotId = item => item.objectID !== id;
+    const updatedHits = this.state.result.hits.filter(isNotId);
+    // const updatedList = this.state.list.filter(isNotId);
+    this.setState({ 
+      // result: Object.assign( {}, this.state.result, {hits: updatedHits} )
+      result: { ...this.state.result, hits: updatedHits };
+    });
+    console.log(result);
   }
   
   onSearchChange(event) {
@@ -74,7 +80,7 @@ class App extends Component {
   }
 }
     
-// Stage 3
+// functional stateless component
 const Search = ( { value, onChange, children } ) =>
   <form>
     {children} 
@@ -114,7 +120,7 @@ const Search = ( { value, onChange, children } ) =>
     )}
   </div>
 
-// As a functional stateless component
+// functional stateless component
 const Button = ({ onClick, className, children}) => 
   <button
   onClick = { onClick }
