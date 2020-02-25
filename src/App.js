@@ -49,53 +49,36 @@ class App extends Component {
   setSearchTopStories(result) {
     this.setState({ result });
   }
-  
   // You use the componentDidMount() lifecycle method to fetch the data after the component
   // mounted. The first fetch uses default search term from the local state. It will fetch “redux” related
   // stories, because that is the default parameter.
   componentDidMount() {
     const { searchTerm } = this.state; 
     fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}`)
-      .then(response => response.json())
-      .then(result => this.setSearchTopStories(result))
-      .catch(error => error);
+    .then(response => response.json())
+    .then(result => this.setSearchTopStories(result))
+    .catch(error => error);
   }
-
+  
   // arrow function would auto bind the function
   onDismiss(id) {
     const updatedList = this.state.list.filter(item => item.objectID !== id);
     this.setState({ list: updatedList });
   }
-
+  
   onSearchChange(event) {
     this.setState({ searchTerm: event.target.value });
   }
-
+  
   render() {
-    // same as:
-    // var searchTerm = this.state.searchTerm; 
-    // var list = this.state.list;
-  const { searchTerm, list } = this.state;
+    const { searchTerm, result } = this.state;
+    if (!result) { return null }  
     return (
-      <div className='page'>
-        <div className='interactions'>
-          <Search 
-            value = { searchTerm }
-            onChange = { this.onSearchChange }
-          >
-            Search 
-          </Search>
-          <Table 
-            list = { list }
-            pattern = { searchTerm }
-            onDismiss = { this.onDismiss }
-          />
-        </div>
-      </div>
-    );
+      <p></p>
+      ); 
   }
 }
-
+    
 // Example of composable component
 // class Search extends Component {
 //   render() {
@@ -113,7 +96,7 @@ class App extends Component {
 //     )
 //   }
 // }
-
+      
 //  Functional Stateless Component. Stage 1
 // function Search(props) {
 //   const { value, onChange, children } = props;
@@ -128,7 +111,7 @@ class App extends Component {
 //     </form>
 //   )
 // }
-
+    
 //  Stage 2
 // function Search( { value, onChange, children } ) {
 //   return (
@@ -151,7 +134,7 @@ const Search = ( { value, onChange, children } ) =>
       type="text"
       value={value}
       onChange={onChange}
-    />
+      />
   </form>
 
 // class Table extends Component {
@@ -180,31 +163,31 @@ const Search = ( { value, onChange, children } ) =>
 // }
 
 // As a functional stateless component
-const Table = ({ list, pattern, onDismiss }) =>  
+  const Table = ({ list, pattern, onDismiss }) =>  
   <div className='table'>
     {list.filter(isSearched(pattern)).map(item =>
-      <div key = { item.objectID } className='table-row'>
-        <span style={{ width: '40%' }}>
-          <a href = { item.url }>{item.title}</a>
-        </span>
-        <span style={{ width: '30%' }}>
-          { item.author }
-        </span>
-        <span style={{ width: '10%' }}>
-          { item.num_comments }
-        </span>
-        <span style={{ width: '10%' }}>
-          { item.points }
-        </span>
-        <span style={{ width: '10%' }}>
-          <Button
-            className='button-inline'
-            onClick={() => onDismiss(item.objectID)}
+    <div key = { item.objectID } className='table-row'>
+      <span style={{ width: '40%' }}>
+        <a href = { item.url }>{item.title}</a>
+      </span>
+      <span style={{ width: '30%' }}>
+        { item.author }
+      </span>
+      <span style={{ width: '10%' }}>
+        { item.num_comments }
+      </span>
+      <span style={{ width: '10%' }}>
+        { item.points }
+      </span>
+      <span style={{ width: '10%' }}>
+        <Button
+          className='button-inline'
+          onClick={() => onDismiss(item.objectID)}
           >
-            Dismiss
-          </Button>
-        </span>
-      </div>
+          Dismiss
+        </Button>
+      </span>
+    </div>
     )}
   </div>
 
@@ -229,7 +212,7 @@ const Table = ({ list, pattern, onDismiss }) =>
 //     );
 //   }
 // }
-
+        
 // As a functional stateless component
 const Button = ({ onClick, className, children}) => 
   <button
