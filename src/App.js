@@ -56,7 +56,7 @@ class App extends Component {
   
   render() {
     const { searchTerm, result } = this.state;
-    if (!result) { return null }  
+    // if (!result) { return null }  
     return (
       <div className='page'>
         <div className='interactions'>
@@ -66,11 +66,14 @@ class App extends Component {
           >
             Search 
           </Search>
-          <Table 
-            list = { result.hits }
-            pattern = { searchTerm }
-            onDismiss = { this.onDismiss }
-          />
+          { result ? 
+            <Table 
+              list = { result.hits }
+              pattern = { searchTerm }
+              onDismiss = { this.onDismiss }
+            />
+            : null
+          }
         </div>
       </div>      
     ); 
@@ -85,7 +88,7 @@ const Search = ( { value, onChange, children } ) =>
       type="text"
       value={value}
       onChange={onChange}
-      />
+    />
   </form>
 
 // As a functional stateless component
