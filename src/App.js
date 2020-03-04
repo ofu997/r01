@@ -66,13 +66,16 @@ class App extends Component {
           >
             Search 
           </Search>
-          { result ? 
+          {/* logical &&:
+            expr1 && expr2	
+            If expr1 can be converted to true, returns expr2; else, returns expr1. 
+          */}
+          { result &&
             <Table 
               list = { result.hits }
               pattern = { searchTerm }
               onDismiss = { this.onDismiss }
             />
-            : null
           }
         </div>
       </div>      
