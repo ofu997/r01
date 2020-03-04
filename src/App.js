@@ -16,20 +16,17 @@ class App extends Component {
   constructor(props){
     super(props);
     this.state = {
-      // list,
-      // searchTerm: '',
       result: null,
       searchTerm: DEFAULT_QUERY,
     };
     // bind a class method to constructor
     this.setSearchTopStories = this.setSearchTopStories.bind(this);
-    this.onDismiss = this.onDismiss.bind(this);
+    this.fetchSearchTopStories = this.fetchSearchTopStories.bind(this); 
     this.onSearchChange = this.onSearchChange.bind(this);
+    this.onSearchSubmit = this.onSearchSubmit.bind(this);
+    this.onDismiss = this.onDismiss.bind(this);
   }
 
-  setSearchTopStories(result) {
-    this.setState({ result });
-  }
   // You use the componentDidMount() lifecycle method to fetch the data after the component
   // mounted. The first fetch uses default search term from the local state. It will fetch “redux” related
   // stories, because that is the default parameter.
@@ -41,6 +38,22 @@ class App extends Component {
     .catch(error => error);
   }
   
+  fetchSearchTopStories(searchTerm) {
+    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}`)
+      .then(response => response.json())
+      .then(result => this.setSearchTopStories(result))
+      .catch(error => error); 
+  }
+
+  componentWillMount() {
+    const { searchTerm } = this.state;
+    this.fetchSearchTopStories(searchTerm);
+  }
+  
+  setSearchTopStories(result) {
+    this.setState({ result });
+  }
+
   // arrow function would auto bind the function
   onDismiss(id) {
     const isNotId = item => item.objectID !== id;
@@ -52,6 +65,11 @@ class App extends Component {
   
   onSearchChange(event) {
     this.setState({ searchTerm: event.target.value });
+  }
+
+  onSearchSubmit(){
+    const { searchTerm } = this.state; 
+    this.fetchSearchTopStories(searchTerm); 
   }
   
   render() {
