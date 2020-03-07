@@ -1,10 +1,5 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
-import { ENETDOWN } from 'constants';
-
-const isSearched = searchTerm => item =>
-  item.title.toLowerCase().includes(searchTerm.toLowerCase());
 
 const DEFAULT_QUERY = 'redux';
 const PATH_BASE = 'https://hn.algolia.com/api/v1';
@@ -15,6 +10,7 @@ const PARAM_SEARCH = 'query=';
 class App extends Component {
   constructor(props){
     super(props);
+
     this.state = {
       result: null,
       searchTerm: DEFAULT_QUERY,
@@ -27,17 +23,10 @@ class App extends Component {
     this.onDismiss = this.onDismiss.bind(this);
   }
 
-  // You use the componentDidMount() lifecycle method to fetch the data after the component
-  // mounted. The first fetch uses default search term from the local state. It will fetch “redux” related
-  // stories, because that is the default parameter.
-  componentDidMount() {
-    const { searchTerm } = this.state; 
-    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}`)
-    .then(response => response.json())
-    .then(result => this.setSearchTopStories(result))
-    .catch(error => error);
+  setSearchTopStories(result) {
+    this.setState({ result });
   }
-  
+
   fetchSearchTopStories(searchTerm) {
     fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}`)
       .then(response => response.json())
@@ -45,13 +34,22 @@ class App extends Component {
       .catch(error => error); 
   }
 
-  componentWillMount() {
-    const { searchTerm } = this.state;
+  // You use the componentDidMount() lifecycle method to fetch the data after the component
+  // mounted. The first fetch uses default search term from the local state. It will fetch “redux” related
+  // stories, because that is the default parameter.
+  componentDidMount() {
+    const { searchTerm } = this.state; 
     this.fetchSearchTopStories(searchTerm);
   }
-  
-  setSearchTopStories(result) {
-    this.setState({ result });
+
+  onSearchChange(event) {
+    this.setState({ searchTerm: event.target.value });
+  }
+
+  onSearchSubmit(event) {
+    const { searchTerm } = this.state; 
+    this.fetchSearchTopStories(searchTerm); 
+    event.preventDefault();
   }
 
   // arrow function would auto bind the function
@@ -63,15 +61,6 @@ class App extends Component {
     });
   }
   
-  onSearchChange(event) {
-    this.setState({ searchTerm: event.target.value });
-  }
-
-  onSearchSubmit(){
-    const { searchTerm } = this.state; 
-    this.fetchSearchTopStories(searchTerm); 
-  }
-  
   render() {
     const { searchTerm, result } = this.state;
     // if (!result) { return null }  
@@ -81,9 +70,11 @@ class App extends Component {
           <Search 
             value = { searchTerm }
             onChange = { this.onSearchChange }
+            onSubmit = {this.onSearchSubmit}
           >
             Search 
           </Search>
+        </div>
           {/* logical &&:
             expr1 && expr2	
             If expr1 can be converted to true, returns expr2; else, returns expr1. 
@@ -95,27 +86,29 @@ class App extends Component {
               onDismiss = { this.onDismiss }
             />
           }
-        </div>
       </div>      
     ); 
   }
 }
     
 // functional stateless component
-const Search = ( { value, onChange, children } ) =>
-  <form>
+const Search = ( { value, onChange, onSubmit, children } ) =>
+  <form onSubmit={onSubmit}>
     {children} 
     <input
       type="text"
       value={value}
       onChange={onChange}
     />
+    <button type="submit">
+      {children}
+    </button>
   </form>
 
 // As a functional stateless component
-  const Table = ({ list, pattern, onDismiss }) =>  
+  const Table = ({ list, onDismiss }) =>  
   <div className='table'>
-    {list.filter(isSearched(pattern)).map(item =>
+    {list.map(item =>
     <div key = { item.objectID } className='table-row'>
       <span style={{ width: '40%' }}>
         <a href = { item.url }>{item.title}</a>
@@ -131,9 +124,9 @@ const Search = ( { value, onChange, children } ) =>
       </span>
       <span style={{ width: '10%' }}>
         <Button
-          className='button-inline'
           onClick={() => onDismiss(item.objectID)}
-          >
+          className='button-inline'
+        >
           Dismiss
         </Button>
       </span>
@@ -142,13 +135,13 @@ const Search = ( { value, onChange, children } ) =>
   </div>
 
 // functional stateless component
-const Button = ({ onClick, className, children}) => 
+const Button = ({ onClick, className = '', children}) => 
   <button
-  onClick = { onClick }
-  className = { className }
-  type="button"
+    onClick={onClick}
+    className={className}
+    type="button"
   >
-  { children }
+    { children }
   </button>
 
 export default App;
