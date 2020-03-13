@@ -17,6 +17,7 @@ class App extends Component {
     };
     // bind a class method to constructor
     this.setSearchTopStories = this.setSearchTopStories.bind(this);
+    // called in componentDidMount() and onSearchSubmit
     this.fetchSearchTopStories = this.fetchSearchTopStories.bind(this); 
     this.onSearchChange = this.onSearchChange.bind(this);
     this.onSearchSubmit = this.onSearchSubmit.bind(this);
@@ -34,13 +35,23 @@ class App extends Component {
       .catch(error => error); 
   }
 
-  // You use the componentDidMount() lifecycle method to fetch the data after the component
+  // (1st tip) You use the componentDidMount() lifecycle method to fetch the data after the component
   // mounted. The first fetch uses default search term from the local state. It will fetch “redux” related
   // stories, because that is the default parameter.
+  // (2nd tip) It is only called on the client, meaning usually performed after the initial render when the client 
+  // has received data from server and right before this data paints the browser. It allows you to do all kinds of 
+  // advanced interactions like state changes. 
+
   componentDidMount() {
     const { searchTerm } = this.state; 
     this.fetchSearchTopStories(searchTerm);
   }
+
+  // reactjs.org: setState() does not always immediately update the component. It may batch 
+  // or defer the update until later. This makes reading this.state right after 
+  // calling setState() a potential pitfall. Instead, use componentDidUpdate or 
+  // a setState callback (setState(updater, callback)), either of which are 
+  // guaranteed to fire after the update has been applied.
 
   onSearchChange(event) {
     this.setState({ searchTerm: event.target.value });
@@ -63,7 +74,6 @@ class App extends Component {
   
   render() {
     const { searchTerm, result } = this.state;
-    // if (!result) { return null }  
     return (
       <div className='page'>
         <div className='interactions'>
@@ -94,7 +104,6 @@ class App extends Component {
 // functional stateless component
 const Search = ( { value, onChange, onSubmit, children } ) =>
   <form onSubmit={onSubmit}>
-    {children} 
     <input
       type="text"
       value={value}
@@ -108,6 +117,22 @@ const Search = ( { value, onChange, onSubmit, children } ) =>
 // As a functional stateless component
   const Table = ({ list, onDismiss }) =>  
   <div className='table'>
+    <div className='table-row columnHeaders'>
+      <span style={{ width: '40%' }}>
+        <p>Article</p>
+      </span>
+      <span style={{ width: '30%' }}>
+        <p>Author</p>
+      </span>
+      <span style={{ width: '10%' }}>
+        <p>Comments</p>
+      </span>      
+      <span style={{ width: '10%' }}>
+        <p>Points</p>
+      </span>      
+      <span style={{ width: '10%' }}>
+      </span>                              
+    </div>
     {list.map(item =>
     <div key = { item.objectID } className='table-row'>
       <span style={{ width: '40%' }}>
