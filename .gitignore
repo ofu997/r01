@@ -23,6 +23,7 @@ yarn-debug.log*
 yarn-error.log*
 
 DONTREADME.html
+playground.js
 
 git origin: r01
 website: https://gifted-kare-25f097.netlify.com

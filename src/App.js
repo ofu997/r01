@@ -11,14 +11,16 @@ const PARAM_HPP = 'hitsPerPage=';
 
 // uses local state so is an ES6 class component. The rest are Functional Stateless Components
 class App extends Component {
-  constructor(props){
+  constructor(props) {
     super(props);
-
+    // set a results object mapping search term (key) with result (value)
     this.state = {
-      result: null,
+      results: null,
+      searchKey: '',
       searchTerm: DEFAULT_QUERY,
     };
-    // bind a class method to constructor
+    // bind class methods to constructor
+    this.needsToSearchTopStories = this.needsToSearchTopStories.bind(this); 
     this.setSearchTopStories = this.setSearchTopStories.bind(this);
     // called in componentDidMount() and onSearchSubmit
     this.fetchSearchTopStories = this.fetchSearchTopStories.bind(this); 
@@ -27,15 +29,22 @@ class App extends Component {
     this.onDismiss = this.onDismiss.bind(this);
   }
 
+  needsToSearchTopStories(searchTerm) {
+    return !this.state.results[searchTerm];
+  }
+
   setSearchTopStories(result) {
     const { hits, page } = result;
-    const oldHits = page !== 0?
-      this.state.result.hits
-      : [];
+    const { searchKey, results } = this.state;
+
+    const oldHits = results && results[searchKey]?
+      results[searchKey].hits
+      : []; 
+
     const updatedHits = [...oldHits, ...hits];
 
     this.setState({ 
-      result: { hits: updatedHits, page } 
+      results: { ...results, [searchKey]: { hits: updatedHits, page } } 
     });
   }
 
@@ -55,6 +64,7 @@ class App extends Component {
 
   componentDidMount() {
     const { searchTerm } = this.state; 
+    this.setState({ searchKey: searchTerm });
     this.fetchSearchTopStories(searchTerm);
   }
 
@@ -71,67 +81,71 @@ class App extends Component {
 
   onSearchSubmit(event) {
     const { searchTerm } = this.state; 
-    this.fetchSearchTopStories(searchTerm); 
+    this.setState({ searchKey: searchTerm });
+
+    if (this.needsToSearchTopStories(searchTerm)) {
+      this.fetchSearchTopStories(searchTerm);
+    }
+
     event.preventDefault();
   }
 
   // arrow function would auto bind the function
   onDismiss(id) {
+    const { searchKey, results } = this.state;
+    const { hits, page } = results[searchKey];
+
     const isNotId = item => item.objectID !== id;
-    const updatedHits = this.state.result.hits.filter(isNotId);
+    const updatedHits = hits.filter(isNotId);
+
     this.setState({ 
-      result: { ...this.state.result, hits: updatedHits }
+      results: { ...results, [searchKey]: { hits: updatedHits, page } }
     });
   }
   
   render() {
-    const { searchTerm, result } = this.state;
-    const page = (result && result.page) || 0;
+    const { searchTerm, results, searchKey } = this.state;
+    const page = ( results && results[searchKey] && results[searchKey].page ) || 0;
+    const list = ( results && results[searchKey] && results[searchKey].hits ) || [];
     return (
       <div className='page'>
         <div className='interactions'>
           <Search 
             value = { searchTerm }
             onChange = { this.onSearchChange }
-            onSubmit = {this.onSearchSubmit}
+            onSubmit = { this.onSearchSubmit }
           >
             Search 
           </Search>
         </div>
-          {/* logical &&:
-            expr1 && expr2	
-            If expr1 can be converted to true, returns expr2; else, returns expr1. 
-          */}
-          { result &&
-            <Table 
-              list = { result.hits }
-              pattern = { searchTerm }
-              onDismiss = { this.onDismiss }
-            />
-          }
-          <div className="interactions">
-            <Button onClick={() => this.fetchSearchTopStories(searchTerm, page + 1)}>
-              More
-            </Button>
-            <Button onClick={() => this.fetchSearchTopStories(searchTerm, page - 1)}>
-              Less
-            </Button>            
-          </div>          
+        <Table 
+          list = { list }
+          onDismiss = { this.onDismiss }
+        />
+
+        <div className="interactions">
+          <Button onClick = { () => this.fetchSearchTopStories(searchKey, page + 1) }>
+            More
+          </Button>
+          <Button onClick = { () => this.fetchSearchTopStories(searchKey, page - 1) }>
+            Less
+          </Button>            
+        </div>         
       </div>      
     ); 
   }
 }
     
 // functional stateless component
-const Search = ( { value, onChange, onSubmit, children } ) =>
-  <form onSubmit={onSubmit}>
+const Search = ({ value, onChange, onSubmit, children }) =>
+  <form onSubmit = { onSubmit }>
     <input
       type="text"
-      value={value}
-      onChange={onChange}
+      value = { value }
+      onChange = { onChange }
     />
     <button type="submit">
-      {children}
+      { children }
     </button>
   </form>
 
@@ -154,23 +168,23 @@ const Search = ( { value, onChange, onSubmit, children } ) =>
       <span style={{ width: '10%' }}>
       </span>                              
     </div>
-    {list.map(item =>
+    { list.map(item =>
     <div key = { item.objectID } className='table-row'>
       <span style={{ width: '40%' }}>
-        <a href = { item.url }>{item.title}</a>
+        <a href = { item.url }>{ item.title }</a>
       </span>
-      <span style={{ width: '30%' }}>
+      <span style = {{ width: '30%' }}>
         { item.author }
       </span>
-      <span style={{ width: '10%' }}>
+      <span style = {{ width: '10%' }}>
         { item.num_comments }
       </span>
-      <span style={{ width: '10%' }}>
+      <span style = {{ width: '10%' }}>
         { item.points }
       </span>
-      <span style={{ width: '10%' }}>
+      <span style = {{ width: '10%' }}>
         <Button
-          onClick={() => onDismiss(item.objectID)}
+          onClick = { () => onDismiss(item.objectID) }
           className='button-inline'
         >
           Dismiss
@@ -183,8 +197,8 @@ const Search = ( { value, onChange, onSubmit, children } ) =>
 // functional stateless component
 const Button = ({ onClick, className = '', children}) => 
   <button
-    onClick={onClick}
-    className={className}
+    onClick = { onClick }
+    className = { className }
     type="button"
   >
     { children }
