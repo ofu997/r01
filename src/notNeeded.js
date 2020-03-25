@@ -1,21 +1,3 @@
-// const list = [
-//   {
-//     title: 'React',
-//     url: 'https://reactjs.org/',
-//     author: 'Jordan Walke',
-//     num_comments: 3,
-//     points: 4,
-//     objectID: 0,
-//   },
-//   {
-//     title: 'Redux',
-//     url: 'https://redux.js.org/',
-//     author: 'Dan Abramov, Andrew Clark',
-//     num_comments: 2,
-//     points: 5,
-//     objectID: 1,
-//   },
-// ];
 
 // example of reusable component
 // class Button extends Component {
@@ -108,3 +90,40 @@
 //     )
 //   }
 // }
+
+// types of functional stateless components
+// const Greeting = (props) =>  {
+//   return(
+//     <div>
+//         <p>greeting: {props.date}</p>
+//         <p>snowfall</p>
+//     </div>
+//   )
+// }
+
+// const SecondGreeting = ({greeting}) => <p>greeting: {greeting}</p>
+
+// function ThirdGreeting({greeting}){
+//   return(
+//     <p> 3rd greeting: {greeting}</p>
+//   );
+// }
+
+// class Hello extends React.Component{
+//   render() {
+//     return (
+//       <div>
+        
+//         <Greeting date={Date()} />
+//         <SecondGreeting greeting="hi" />
+//         <ThirdGreeting greeting="bonjour" />
+        
+//       </div>
+//     );
+//   }
+// };
+
+// ReactDOM.render(
+//   <Hello/>,
+//   document.getElementById('root')
+// );
