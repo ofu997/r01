@@ -135,22 +135,25 @@ class App extends Component {
         }
 
         <div className="interactions">
-          {
+          {/* {
             isLoading?
               <Loading/>
               : 
               <Button onClick = { () => this.fetchSearchTopStories(searchKey, page + 1) }>
                 More
               </Button>              
-          }
-          <Button onClick = { () => this.fetchSearchTopStories(searchKey, page - 1) }>
+          } */}
+          <ButtonWithLoading isLoading = {isLoading} onClick = { () => this.fetchSearchTopStories(searchKey, page + 1 ) }>
+            More 
+          </ButtonWithLoading>
+          {/* <Button onClick = { () => this.fetchSearchTopStories(searchKey, page - 1) }>
             Less
-          </Button>            
+          </Button>             */}
         </div>         
       </div>      
     ); 
   }
-}
+} // App
     
 // functional stateless component
 // const Search = ({ value, onChange, onSubmit, children }) =>
@@ -190,23 +193,23 @@ class Search extends Component {
   }
 }
 
-// As a functional stateless component
+// functional stateless component
 const Table = ({ list, onDismiss }) =>  
 <div className='table'>
   <div className='table-row columnHeaders'>
     <span style={{ width: '40%' }}>
       <p>Article</p>
     </span>
-    <span style={{ width: '30%' }}>
+    <span style={{ width: '20%' }}>
       <p>Author</p>
     </span>
-    <span style={{ width: '10%' }}>
+    <span style={{ width: '14%' }}>
       <p>Comments</p>
     </span>      
-    <span style={{ width: '10%' }}>
+    <span style={{ width: '13%' }}>
       <p>Points</p>
     </span>      
-    <span style={{ width: '10%' }}>
+    <span style={{ width: '13%' }}>
     </span>                              
   </div>
   { list.map(item =>
@@ -214,16 +217,16 @@ const Table = ({ list, onDismiss }) =>
     <span style={{ width: '40%' }}>
       <a href = { item.url }>{ item.title }</a>
     </span>
-    <span style = {{ width: '30%' }}>
+    <span style = {{ width: '20%' }}>
       { item.author }
     </span>
-    <span style = {{ width: '10%' }}>
+    <span style = {{ width: '14%' }}>
       { item.num_comments }
     </span>
-    <span style = {{ width: '10%' }}>
+    <span style = {{ width: '13%' }}>
       { item.points }
     </span>
-    <span style = {{ width: '10%' }}>
+    <span style = {{ width: '13%' }}>
       <Button
         onClick = { () => onDismiss(item.objectID) }
         className='button-inline'
@@ -271,6 +274,13 @@ Button.propTypes = {
 const Loading = () =>
   <div>Loading...</div>
 
+const withLoading = (Component) => ({ isLoading, ...rest }) =>
+  isLoading?
+  <Loading/>
+  : <Component { ...rest } />
+
+const ButtonWithLoading = withLoading(Button); 
+  
 export default App;
 
 export {
