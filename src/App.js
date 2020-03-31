@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import { sortBy } from 'lodash'; 
 import PropTypes from 'prop-types';
 import './App.css';
 
 import { DEFAULT_QUERY, DEFAULT_HPP, PATH_BASE,
   PATH_SEARCH, PARAM_SEARCH, PARAM_PAGE,
-  PARAM_HPP } from './constants';
+  PARAM_HPP, sorts } from './constants';
 
 // uses local state so is an ES6 class component. The rest are Functional Stateless Components
 class App extends Component {
@@ -18,6 +19,7 @@ class App extends Component {
       searchTerm: DEFAULT_QUERY,
       error: null,
       isLoading: false, 
+      sortKey: 'none', 
     };
     // bind class methods to constructor
     this.needsToSearchTopStories = this.needsToSearchTopStories.bind(this); 
@@ -27,6 +29,7 @@ class App extends Component {
     this.onSearchChange = this.onSearchChange.bind(this);
     this.onSearchSubmit = this.onSearchSubmit.bind(this);
     this.onDismiss = this.onDismiss.bind(this);
+    this.onSort = this.onSort.bind(this); 
   }
 
   needsToSearchTopStories(searchTerm) {
@@ -58,6 +61,10 @@ class App extends Component {
     axios(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
       .then(result => this.setSearchTopStories(result.data))
       .catch(error => this.setState({ error })); 
+  }
+
+  onSort(sortKey) {
+    this.setState({ sortKey }); 
   }
 
   // (1st tip) You use the componentDidMount() lifecycle method to fetch the data after the component
@@ -109,7 +116,7 @@ class App extends Component {
   }
   
   render() {
-    const { searchTerm, results, searchKey, error, isLoading } = this.state;
+    const { searchTerm, results, searchKey, error, isLoading, sortKey } = this.state;
     const page = ( results && results[searchKey] && results[searchKey].page ) || 0;
     const list = ( results && results[searchKey] && results[searchKey].hits ) || [];
 
@@ -128,9 +135,12 @@ class App extends Component {
           <div className='interactions'>
             <p>Something went wrong.</p>
           </div>
-          : <Table 
-          list = { list }
-          onDismiss = { this.onDismiss }
+          : 
+          <Table 
+            list = { list }
+            onDismiss = { this.onDismiss }
+            sortKey = {sortKey}
+            onSort = {this.onSort}
           />          
         }
 
@@ -154,19 +164,6 @@ class App extends Component {
     ); 
   }
 } // App
-    
-// functional stateless component
-// const Search = ({ value, onChange, onSubmit, children }) =>
-//   <form onSubmit = { onSubmit }>
-//     <input
-//       type="text"
-//       value = { value }
-//       onChange = { onChange }
-//     />
-//     <button type="submit">
-//       { children }
-//     </button>
-//   </form>
 
 // change Search to a React component
 class Search extends Component {
@@ -194,7 +191,7 @@ class Search extends Component {
 }
 
 // functional stateless component
-const Table = ({ list, onDismiss }) =>  
+const Table = ({ list, onDismiss, sortKey, onSort }) =>  
 <div className='table'>
   <div className='table-row columnHeaders'>
     <span style={{ width: '40%' }}>
@@ -212,7 +209,7 @@ const Table = ({ list, onDismiss }) =>
     <span style={{ width: '13%' }}>
     </span>                              
   </div>
-  { list.map(item =>
+  {sorts[sortKey](lst).map(item => 
   <div key = { item.objectID } className='table-row'>
     <span style={{ width: '40%' }}>
       <a href = { item.url }>{ item.title }</a>
