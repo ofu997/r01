@@ -1,12 +1,21 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import { sortBy } from 'lodash'; 
+import classNames from 'classnames'; 
 import PropTypes from 'prop-types';
 import './App.css';
 
 import { DEFAULT_QUERY, DEFAULT_HPP, PATH_BASE,
   PATH_SEARCH, PARAM_SEARCH, PARAM_PAGE,
-  PARAM_HPP, sorts } from './constants';
+  PARAM_HPP } from './constants';
+
+const SORTS = {
+  none: list => list,
+  title: list => sortBy(list, 'title'), 
+  author: list => sortBy(list, 'author'),
+  comments: list => sortBy(list, 'num_comments').reverse(),
+  points: list => sortBy(list, 'points').reverse(), 
+};   
 
 // uses local state so is an ES6 class component. The rest are Functional Stateless Components
 class App extends Component {
@@ -20,6 +29,7 @@ class App extends Component {
       error: null,
       isLoading: false, 
       sortKey: 'none', 
+      isSortReverse: false, 
     };
     // bind class methods to constructor
     this.needsToSearchTopStories = this.needsToSearchTopStories.bind(this); 
@@ -64,7 +74,12 @@ class App extends Component {
   }
 
   onSort(sortKey) {
-    this.setState({ sortKey }); 
+    const isSortReverse = this.state.sortKey === sortKey && !this.state.isSortReverse;
+    this.setState({
+      sortKey, isSortReverse 
+    });
+  
+    // this.setState({ sortKey }); 
   }
 
   // (1st tip) You use the componentDidMount() lifecycle method to fetch the data after the component
@@ -104,7 +119,7 @@ class App extends Component {
 
   // arrow function would auto bind the function
   onDismiss(id) {
-    const { searchKey, results } = this.state;
+    const { searchTerm, results, searchKey, error, isLoading, sortKey, isSortReverse } = this.state;
     const { hits, page } = results[searchKey];
 
     const isNotId = item => item.objectID !== id;
@@ -141,6 +156,7 @@ class App extends Component {
             onDismiss = { this.onDismiss }
             sortKey = {sortKey}
             onSort = {this.onSort}
+            isSortReverse = {isSortReverse}
           />          
         }
 
@@ -191,49 +207,81 @@ class Search extends Component {
 }
 
 // functional stateless component
-const Table = ({ list, onDismiss, sortKey, onSort }) =>  
-<div className='table'>
-  <div className='table-row columnHeaders'>
-    <span style={{ width: '40%' }}>
-      <p>Article</p>
-    </span>
-    <span style={{ width: '20%' }}>
-      <p>Author</p>
-    </span>
-    <span style={{ width: '14%' }}>
-      <p>Comments</p>
-    </span>      
-    <span style={{ width: '13%' }}>
-      <p>Points</p>
-    </span>      
-    <span style={{ width: '13%' }}>
-    </span>                              
-  </div>
-  {sorts[sortKey](lst).map(item => 
-  <div key = { item.objectID } className='table-row'>
-    <span style={{ width: '40%' }}>
-      <a href = { item.url }>{ item.title }</a>
-    </span>
-    <span style = {{ width: '20%' }}>
-      { item.author }
-    </span>
-    <span style = {{ width: '14%' }}>
-      { item.num_comments }
-    </span>
-    <span style = {{ width: '13%' }}>
-      { item.points }
-    </span>
-    <span style = {{ width: '13%' }}>
-      <Button
-        onClick = { () => onDismiss(item.objectID) }
-        className='button-inline'
-      >
-        Dismiss
-      </Button>
-    </span>
-  </div>
-  )}
-</div>
+const Table = ({ list, onDismiss, sortKey, onSort }) =>  {
+  const sortedList = SORTS[sortKey](list);
+  const reverseSortedList = isSortReverse? 
+    sortedList.reverse()
+    : sortedList; 
+  return (
+    <div className='table'>
+      <div className='table-row columnHeaders'>
+        <span style={{ width: '40%' }}>
+          <Sort 
+            sortKey={'TITLE'}
+            onSort={onSort}
+            activeSortKey={sortKey}
+          >
+            Title
+          </Sort>
+        </span>
+        <span style={{ width: '20%' }}>
+          <Sort 
+            sortKey={'AUTHOR'}
+            onSort={onSort}
+            activeSortKey={sortKey}
+          >
+            Author
+          </Sort>
+        </span>
+        <span style={{ width: '14%' }}>
+          <Sort
+            sortKey={'COMMENTS'}
+            onSort={onSort}
+            activeSortKey={sortKey}
+          >
+            Comments
+          </Sort>          
+        </span>      
+        <span style={{ width: '13%' }}>
+          <Sort
+              sortKey={'POINTS'}
+              onSort={onSort}
+              activeSortKey={sortKey}
+            >
+              Points
+            </Sort>    
+        </span>      
+        <span style={{ width: '13%' }}>
+        </span>                              
+      </div>
+      {reverseSortedList.map(item => 
+      <div key = { item.objectID } className='table-row'>
+        <span style={{ width: '40%' }}>
+          <a href = { item.url }>{ item.title }</a>
+        </span>
+        <span style = {{ width: '20%' }}>
+          { item.author }
+        </span>
+        <span style = {{ width: '14%' }}>
+          { item.num_comments }
+        </span>
+        <span style = {{ width: '13%' }}>
+          { item.points }
+        </span>
+        <span style = {{ width: '13%' }}>
+          <Button
+            onClick = { () => onDismiss(item.objectID) }
+            className='button-inline'
+          >
+            Dismiss
+          </Button>
+        </span>
+      </div>
+      )}
+    </div>
+  );
+}
+
 
 Table.propTypes = {
   list: PropTypes.arrayOf(
@@ -247,6 +295,22 @@ Table.propTypes = {
   ).isRequired,
   onDismiss: PropTypes.func.isRequired, 
 }; 
+
+const Sort = ({ sortKey,activeSortKey,onSort,children }) => {
+  const sortClass = classNames(
+    'button-inline',
+    { 'button-active': sortKey === activeSortKey }
+  );
+
+  return (
+    <Button
+      onClick={() => onSort(sortKey)}
+      className={sortClass}
+    >
+      {children}
+    </Button>
+  );
+}
 
 // functional stateless component
 const Button = ({ onClick, className, children }) => 

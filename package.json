@@ -5,6 +5,7 @@
   "dependencies": {
     "axios": "^0.19.2",
     "browserslist": "^4.8.3",
+    "classnames": "^2.2.6",
     "lodash": "^4.17.15",
     "prop-types": "^15.7.2",
     "react": "^16.12.0",

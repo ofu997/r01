@@ -6,19 +6,10 @@ const PARAM_SEARCH = 'query=';
 const PARAM_PAGE = 'page=';
 const PARAM_HPP = 'hitsPerPage=';
 
-const sorts = {
-  none: list => list,
-  title: list => sortBy(list, 'title'), 
-  author: list => sortBy(list, 'author'),
-  comments: list => sortBy(list, 'num_comments').reverse(),
-  points: list => sortBy(list, 'points').reverse(), 
-}; 
-
 export { DEFAULT_QUERY, DEFAULT_HPP,
 PATH_BASE,
 PATH_SEARCH,
 PARAM_SEARCH,
 PARAM_PAGE,
 PARAM_HPP,
-sorts,
 };
