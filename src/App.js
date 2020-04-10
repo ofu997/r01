@@ -17,69 +17,57 @@ const SORTS = {
   POINTS: list => sortBy(list, 'points').reverse(), 
 };   
 
-// uses local state so is an ES6 class component. The rest are Functional Stateless Components
+const updateSearchTopStoriesState = (hits, page) => (prevState) => {
+    const { searchKey, results } = prevState;
+    const oldHits = results && results[searchKey]? 
+      results[searchKey].hits
+      : [];
+    const updatedHits = [...oldHits, ...hits];
+
+    return {
+      results: {
+      ...results,
+      [searchKey]: { hits: updatedHits, page }
+    },
+    isLoading: false
+  };
+};
+
+// uses local state so is an ES6 class component. 
 class App extends Component {
   constructor(props) {
     super(props);
-    // set a results object mapping search term (key) with result (value)
     this.state = {
       results: null,
       searchKey: '',
       searchTerm: DEFAULT_QUERY,
       error: null,
       isLoading: false, 
-      sortKey: 'none', 
-      isSortReverse: false, 
     };
     // bind class methods to constructor
     this.needsToSearchTopStories = this.needsToSearchTopStories.bind(this); 
     this.setSearchTopStories = this.setSearchTopStories.bind(this);
-    // called in componentDidMount() and onSearchSubmit
     this.fetchSearchTopStories = this.fetchSearchTopStories.bind(this); 
     this.onSearchChange = this.onSearchChange.bind(this);
     this.onSearchSubmit = this.onSearchSubmit.bind(this);
     this.onDismiss = this.onDismiss.bind(this);
-    // this.onSort = this.onSort.bind(this); 
   }
-
   needsToSearchTopStories(searchTerm) {
     return !this.state.results[searchTerm];
   }
-
   setSearchTopStories(result) {
     const { hits, page } = result;
-    const { searchKey, results } = this.state;
-
-    const oldHits = results && results[searchKey]?
-      results[searchKey].hits
-      : []; 
-
-    const updatedHits = [...oldHits, ...hits];
-
-    this.setState({ 
-      results: { ...results, [searchKey]: { hits: updatedHits, page } }, isLoading: false,  
-    });
+    this.setState(updateSearchTopStoriesState(hits, page)); 
   }
-
   fetchSearchTopStories(searchTerm, page = 0) {
     if (page<0)
     {
       return;  
     }
     this.setState({ isLoading: true }); 
-
     axios(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
       .then(result => this.setSearchTopStories(result.data))
       .catch(error => this.setState({ error })); 
-  }
-
-  onSort(sortKey) {
-    const isSortReverse = this.state.sortKey === sortKey && !this.state.isSortReverse;
-    this.setState({
-      sortKey, isSortReverse 
-    });
-  
-    // this.setState({ sortKey }); 
   }
 
   // (1st tip) You use the componentDidMount() lifecycle method to fetch the data after the component
@@ -88,7 +76,6 @@ class App extends Component {
   // (2nd tip) It is only called on the client, meaning usually performed after the initial render when the client 
   // has received data from server and right before this data paints the browser. It allows you to do all kinds of 
   // advanced interactions like state changes. 
-
   componentDidMount() {
     const { searchTerm } = this.state; 
     this.setState({ searchKey: searchTerm });
@@ -105,7 +92,6 @@ class App extends Component {
   onSearchChange(event) {
     this.setState({ searchTerm: event.target.value });
   }
-
   onSearchSubmit(event) {
     const { searchTerm } = this.state; 
     this.setState({ searchKey: searchTerm });
@@ -116,7 +102,6 @@ class App extends Component {
 
     event.preventDefault();
   }
-
   // arrow function would auto bind the function
   onDismiss(id) {
     const { results, searchKey, } = this.state;
