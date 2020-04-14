@@ -44,7 +44,7 @@ class App extends Component {
       error: null,
       isLoading: false, 
     };
-    // bind class methods to constructor
+    // bind class methods to constructor. Arrow functions would automatically bind.
     this.needsToSearchTopStories = this.needsToSearchTopStories.bind(this); 
     this.setSearchTopStories = this.setSearchTopStories.bind(this);
     this.fetchSearchTopStories = this.fetchSearchTopStories.bind(this); 
@@ -102,7 +102,6 @@ class App extends Component {
 
     event.preventDefault();
   }
-  // arrow function would auto bind the function
   onDismiss(id) {
     const { results, searchKey, } = this.state;
     const { hits, page } = results[searchKey];
@@ -286,7 +285,6 @@ class Table extends Component {
     );
   }
 }  
-
 
 Table.propTypes = {
   list: PropTypes.arrayOf(
